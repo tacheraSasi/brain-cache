@@ -40,7 +40,7 @@ const AppProvider = () => {
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           </Stack.Protected>
         </Stack>
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
       {/* </ThemeProvider> */}
     </ConvexProviderWithClerk>
   );
