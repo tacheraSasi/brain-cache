@@ -1,4 +1,4 @@
-import { useOAuth, useSignUp, useWarmUpBrowser } from '@clerk/clerk-expo';
+import { useOAuth, useSignUp } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Linking from 'expo-linking';
@@ -15,6 +15,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useWarmUpBrowser } from './sign-in';
 
 
 export default function SignUp() {
