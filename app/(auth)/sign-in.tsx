@@ -1,6 +1,6 @@
-import { useSignIn, useOAuth, useWarmUpBrowser } from '@clerk/clerk-expo';
+import { useSignIn, useOAuth } from '@clerk/clerk-expo';
 import { Link, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import {
@@ -16,6 +16,17 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+
+export const useWarmUpBrowser = () => {
+    useEffect(() => {
+        if (Platform.OS === 'web') return
+        void WebBrowser.warmUpAsync()
+        return () => {
+            void WebBrowser.coolDownAsync()
+        }
+    }, [])
+}
+WebBrowser.maybeCompleteAuthSession()
 
 
 export default function SignIn() {
