@@ -1,32 +1,32 @@
-import { SignOutButton } from '@/components/signout'
-import { api } from '@/convex/_generated/api'
-import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
-import { useQuery } from 'convex/react'
-import { Link } from 'expo-router'
-import { Text, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SignOutButton } from '@/components/signout';
+import { api } from '@/convex/_generated/api';
+import { Authenticated, Unauthenticated, useConvexAuth, useQuery } from 'convex/react';
+import { Link } from 'expo-router';
+import { Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 export default function Page() {
-  const { user } = useUser()
-
+  const { isAuthenticated, isLoading } = useConvexAuth();
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View>
-        <SignedIn>
-          <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
+        <Authenticated>
+          <Text>Welcome! You are signed in.</Text>
           <SignOutButton />
-        </SignedIn>
-        <SignedOut>
+          <Content />
+        </Authenticated>
+        <Unauthenticated>
           <Link href="/(auth)/sign-in">
             <Text>Sign in</Text>
           </Link>
           <Link href="/(auth)/sign-up">
             <Text>Sign up</Text>
           </Link>
-        </SignedOut>
+        </Unauthenticated>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 

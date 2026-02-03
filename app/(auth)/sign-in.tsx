@@ -1,6 +1,8 @@
-import { useSignIn } from '@clerk/clerk-expo';
+import { useSignIn, useOAuth, useWarmUpBrowser } from '@clerk/clerk-expo';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 import {
     ActivityIndicator,
     KeyboardAvoidingView,
@@ -15,8 +17,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
+
 export default function SignIn() {
+    useWarmUpBrowser();
     const { signIn, setActive, isLoaded } = useSignIn();
+    const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
     const router = useRouter();
 
     const [emailAddress, setEmailAddress] = useState('');
@@ -52,16 +57,17 @@ export default function SignIn() {
     };
 
     const onGoogleSignIn = async () => {
-        if (!isLoaded) return;
-
+        setError(null);
         try {
-            await signIn.authenticateWithRedirect({
-                strategy: 'oauth_google',
-                redirectUrl: '/oauth-callback',
-                redirectUrlComplete: '/',
+            const { createdSessionId, setActive: setOAuthActive } = await startOAuthFlow({
+                redirectUrl: Linking.createURL('/'),
             });
+            if (createdSessionId && setOAuthActive) {
+                await setOAuthActive({ session: createdSessionId });
+                router.replace('/');
+            }
         } catch (err: any) {
-            console.error(err);
+            console.error('Google OAuth error:', err);
             setError(err.errors?.[0]?.message || 'Google sign-in failed');
         }
     };

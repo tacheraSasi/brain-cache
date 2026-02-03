@@ -1,4 +1,7 @@
-import { useSignUp } from '@clerk/clerk-expo';
+import { useOAuth, useSignUp, useWarmUpBrowser } from '@clerk/clerk-expo';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Linking from 'expo-linking';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -11,12 +14,13 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+
 
 export default function SignUp() {
+    useWarmUpBrowser();
     const { isLoaded, signUp, setActive } = useSignUp();
+    const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
     const router = useRouter();
 
     const [emailAddress, setEmailAddress] = useState('');
@@ -67,16 +71,17 @@ export default function SignUp() {
     };
 
     const onGoogleSignUp = async () => {
-        if (!isLoaded) return;
-
+        setError(null);
         try {
-            await signUp.authenticateWithRedirect({
-                strategy: 'oauth_google',
-                redirectUrl: '/oauth-callback',
-                redirectUrlComplete: '/',
+            const { createdSessionId, setActive: setOAuthActive } = await startOAuthFlow({
+                redirectUrl: Linking.createURL('/'),
             });
+            if (createdSessionId && setOAuthActive) {
+                await setOAuthActive({ session: createdSessionId });
+                router.replace('/');
+            }
         } catch (err: any) {
-            console.error(err);
+            console.error('Google OAuth error:', err);
             setError(err.errors?.[0]?.message || 'Google sign-up failed');
         }
     };

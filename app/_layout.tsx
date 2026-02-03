@@ -1,7 +1,6 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { Stack } from 'expo-router';
@@ -15,9 +14,13 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
+
 export default function RootLayout() {
   return (
-    <ClerkProvider tokenCache={tokenCache}>
+    <ClerkProvider
+      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+      tokenCache={tokenCache}
+    >
       <AppProvider />
     </ClerkProvider>
   );
@@ -25,22 +28,16 @@ export default function RootLayout() {
 
 
 const AppProvider = () => {
-
   const colorScheme = useColorScheme();
-  const { isSignedIn } = useAuth()
   return (
     <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
       {/* <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}> */}
-        <Stack>
-          <Stack.Protected guard={isSignedIn!}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-          </Stack.Protected>
-          <Stack.Protected guard={!isSignedIn!}>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          </Stack.Protected>
-        </Stack>
-        <StatusBar style="dark" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+      </Stack>
+      <StatusBar style="dark" />
       {/* </ThemeProvider> */}
     </ConvexProviderWithClerk>
   );
